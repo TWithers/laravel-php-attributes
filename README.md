@@ -33,7 +33,7 @@ class SampleClass
 }
 ```
 
-We have a defined attribute `SampleAttribue` that requires a `name` and a `label`. 
+We have a defined attribute `SampleAttribute` that requires a `name` and a `label`. 
 We have a `SampleClass` that uses that attribute, as well as the method `sampleMethod()` that also uses that attribute.
 
 Normally we would need to write code to look up the attributes:
