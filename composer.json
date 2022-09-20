@@ -1,0 +1,56 @@
+{
+  "name": "twithers/laravel-php8-attributes",
+  "description": "Access and cache attributes automatically",
+  "keywords": [
+    "php8-attributes",
+    "attributes",
+    "laravel-php-attributes",
+    "laravel-php8-attributes"
+  ],
+  "homepage": "https://github.com/twithers/laravel-php8-attributes",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Tim Withers",
+      "email": "timothy.withers@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^8.0",
+    "illuminate/contracts": "^8.70|^9.0"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^6.0|^7.0",
+    "phpunit/phpunit": "^9.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "TWithers\\LaravelAttributes\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "TWithers\\LaravelAttributes\\Tests\\": "tests"
+    }
+  },
+  "scripts": {
+    "psalm": "vendor/bin/psalm",
+    "test": "vendor/bin/phpunit --colors=always",
+    "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "TWithers\\LaravelAttributes\\AttributesServiceProvider"
+      ],
+      "aliases": {
+        "Attributes": "TWithers\\LaravelAttributes\\Facades\\Attributes"
+      }
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
