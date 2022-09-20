@@ -4,6 +4,9 @@ namespace TWithers\LaravelAttributes;
 
 use Illuminate\Support\Traits\ForwardsCalls;
 
+/**
+ * @mixin AttributeCollection
+ */
 class AttributeAccessor
 {
     use ForwardsCalls;

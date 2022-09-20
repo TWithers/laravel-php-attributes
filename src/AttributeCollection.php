@@ -35,6 +35,7 @@ class AttributeCollection extends Collection
         }
         $attributeItem = $this->whereAttribute($attributeName)->first();
 
-        return $attributeItem?->instance;
+        return $attributeItem['instance'] ?? null;
 
-    }}
+    }
+}

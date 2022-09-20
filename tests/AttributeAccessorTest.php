@@ -4,26 +4,26 @@ namespace TWithers\LaravelAttributes\Tests;
 
 use TWithers\LaravelAttributes\AttributeAccessor;
 use TWithers\LaravelAttributes\AttributeRegistrar;
-use TWithers\LaravelAttributes\AttributesServiceProvider;
 use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestClassAttribute;
 use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestGenericAttribute;
 use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestMethodAttribute;
+use TWithers\LaravelAttributes\Tests\TestAttributes\Directory1\SubDirectory\SubDirectoryClass;
+use TWithers\LaravelAttributes\Tests\TestAttributes\Directory1\TestClass;
 
-class ServiceProviderTest extends TestCase
+class AttributeAccessorTest extends TestCase
 {
+    protected AttributeAccessor $attributeAccessor;
+
     public function setUp(): void
     {
         parent::setUp();
-        $this->attributeRegistrar = app(AttributeRegistrar::class);
-    }
+        $attributeRegistrar = (new AttributeRegistrar)
+            ->setAttributes(app('config')->get('attributes.attributes'))
+            ->setDirectories(app('config')->get('attributes.directories'));
+        $attributeRegistrar->register();
+        $this->attributeAccessor = new AttributeAccessor($attributeRegistrar->getAttributeMap());
 
-    protected function getPackageProviders($app): array
-    {
-        return [
-            AttributesServiceProvider::class,
-        ];
     }
-
     /**
      * Resolve application core configuration implementation.
      *
@@ -48,12 +48,24 @@ class ServiceProviderTest extends TestCase
     }
 
     /** @test */
-    public function the_provider_can_register_the_accessor()
+    public function the_accessor_populates_the_map()
     {
-        $this->assertInstanceOf(AttributeAccessor::class, app()->get(AttributeAccessor::class));
-        $this->assertInstanceOf(AttributeAccessor::class, app()->get('attributes'));
-        $this->assertCount(14, app()->get(AttributeAccessor::class)->all());
+        $this->assertCount(14, $this->attributeAccessor->all());
+    }
 
+    /** @test */
+    public function the_accessor_can_return_an_attribute_instance()
+    {
+        $this->assertInstanceOf(TestClassAttribute::class, $this->attributeAccessor->getInstance(TestClass::class, TestClassAttribute::class));
+    }
+
+    /** @test */
+    public function the_accessor_items_are_correct()
+    {
+        $this->assertArrayHasKey('class', $this->attributeAccessor->get(0));
+        $this->assertArrayHasKey('method', $this->attributeAccessor->get(0));
+        $this->assertArrayHasKey('attribute', $this->attributeAccessor->get(0));
+        $this->assertArrayHasKey('instance', $this->attributeAccessor->get(0));
     }
 
 
