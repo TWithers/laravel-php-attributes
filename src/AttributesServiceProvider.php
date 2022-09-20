@@ -2,10 +2,10 @@
 
 namespace TWithers\LaravelAttributes;
 
-use Illuminate\Foundation\Console\AttributesClearCommand;
 use Illuminate\Support\Env;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use TWithers\LaravelAttributes\Console\AttributesClearCommand;
 
 class AttributesServiceProvider extends ServiceProvider
 {
@@ -15,7 +15,7 @@ class AttributesServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__ . '/../config/attributes.php' => config_path('attributes.php'),
             ], 'config');
-            
+
             $this->commands([
                 AttributesClearCommand::class
             ]);

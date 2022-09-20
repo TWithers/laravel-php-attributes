@@ -1,6 +1,6 @@
 <?php
 
-namespace Illuminate\Foundation\Console;
+namespace TWithers\LaravelAttributes\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
