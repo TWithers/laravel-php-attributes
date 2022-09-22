@@ -104,7 +104,7 @@ class SampleClass
 }
 ```
 
-We have a defined attribute `SampleAttribue` that requires a `name` and a `label`. 
+We have a defined attribute `SampleAttribute` that requires a `name` and a `label`. 
 We have a `SampleClass` that uses that attribute, as well as the method `sampleMethod()` that also uses that attribute.
 
 ### Looking up Attributes in PHP 8+
@@ -219,5 +219,4 @@ All contributions are welcome.
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-
 
