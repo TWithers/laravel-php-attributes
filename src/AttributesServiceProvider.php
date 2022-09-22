@@ -5,6 +5,9 @@ namespace TWithers\LaravelAttributes;
 use Illuminate\Support\Env;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use TWithers\LaravelAttributes\Attribute\AttributeAccessor;
+use TWithers\LaravelAttributes\Attribute\AttributeCollection;
+use TWithers\LaravelAttributes\Attribute\AttributeRegistrar;
 use TWithers\LaravelAttributes\Console\AttributesClearCommand;
 
 class AttributesServiceProvider extends ServiceProvider
@@ -23,13 +26,8 @@ class AttributesServiceProvider extends ServiceProvider
 
         $attributes = $this->getAttributes();
 
-        $this->app->singleton(AttributeAccessor::class, function($app) use ($attributes) {
-            return new AttributeAccessor($attributes);
-        });
-
-        $this->app->bind('attributes', function($app) {
-            return $app->get(AttributeAccessor::class);
-        });
+        $this->app->singleton(AttributeCollection::class, fn() => $attributes);
+        $this->app->bind('attributes', fn($app) => $app->get(AttributeCollection::class));
     }
 
     public function register()
@@ -38,7 +36,7 @@ class AttributesServiceProvider extends ServiceProvider
     }
 
 
-    protected function getAttributes(): array
+    protected function getAttributes(): AttributeCollection
     {
         if (config('attributes.cache_enabled') && $this->attributesAreCached()) {
             return $this->loadCachedAttributes();
@@ -47,17 +45,17 @@ class AttributesServiceProvider extends ServiceProvider
         return $this->loadAttributes();
     }
 
-    protected function loadCachedAttributes(): array
+    protected function loadCachedAttributes(): AttributeCollection
     {
         return require $this->getCachedAttributesPath();
     }
 
-    protected function loadAttributes(): array
+    protected function loadAttributes(): AttributeCollection
     {
         $attributeRegistrar = new AttributeRegistrar($this->getAttributeDirectories(), $this->getAttributeClasses());
         $attributeRegistrar->register();
-        $this->cacheAttributes($attributeRegistrar->getAttributeMap());
-        return $attributeRegistrar->getAttributeMap();
+        $this->cacheAttributes($attributeRegistrar->getAttributeCollection());
+        return $attributeRegistrar->getAttributeCollection();
     }
 
     protected function getAttributeDirectories(): array
@@ -86,10 +84,10 @@ class AttributesServiceProvider extends ServiceProvider
             : $this->app->basePath($env);
     }
 
-    protected function cacheAttributes(array $attributesMaps)
+    protected function cacheAttributes(AttributeCollection $attributeCollection): void
     {
         $this->app['files']->put(
-            $this->getCachedAttributesPath(), '<?php return '.var_export($attributesMaps, true).';'.PHP_EOL
+            $this->getCachedAttributesPath(), '<?php return unserialize('.var_export(serialize($attributeCollection), true).');'.PHP_EOL
         );
     }
 }

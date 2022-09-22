@@ -1,6 +1,11 @@
 <?php
 
 return [
+
+    /**
+     * Caching will make use of Laravel's built-in file caching. Using caching will be a massive performance benefit
+     * as no directories and files need to be scanned for attributes and attribute usages
+     */
     'use_cache' => true,
 
     /**

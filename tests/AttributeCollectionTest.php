@@ -2,26 +2,27 @@
 
 namespace TWithers\LaravelAttributes\Tests;
 
-use TWithers\LaravelAttributes\AttributeAccessor;
-use TWithers\LaravelAttributes\AttributeRegistrar;
+
+use TWithers\LaravelAttributes\Attribute\AttributeCollection;
+use TWithers\LaravelAttributes\Attribute\AttributeRegistrar;
+use TWithers\LaravelAttributes\Attribute\Entities\AttributeTarget;
 use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestClassAttribute;
 use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestGenericAttribute;
 use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestMethodAttribute;
-use TWithers\LaravelAttributes\Tests\TestAttributes\Directory1\SubDirectory\SubDirectoryClass;
 use TWithers\LaravelAttributes\Tests\TestAttributes\Directory1\TestClass;
 
-class AttributeAccessorTest extends TestCase
+class AttributeCollectionTest extends TestCase
 {
-    protected AttributeAccessor $attributeAccessor;
+    protected AttributeCollection $attributeCollection;
 
     public function setUp(): void
     {
         parent::setUp();
-        $attributeRegistrar = (new AttributeRegistrar)
+        $attributeRegistrar = (new AttributeRegistrar())
             ->setAttributes(app('config')->get('attributes.attributes'))
             ->setDirectories(app('config')->get('attributes.directories'));
         $attributeRegistrar->register();
-        $this->attributeAccessor = new AttributeAccessor($attributeRegistrar->getAttributeMap());
+        $this->attributeCollection = $attributeRegistrar->getAttributeCollection();
 
     }
     /**
@@ -35,7 +36,7 @@ class AttributeAccessorTest extends TestCase
     {
         parent::resolveApplicationConfiguration($app);
 
-        $app['config']->set('attributes.use_cache', [true]);
+        $app['config']->set('attributes.use_cache', [false]);
         $app['config']->set('attributes.directories', [
             'TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1',
             'TWithers\LaravelAttributes\Tests\TestAttributes\Directory2' => __DIR__ . '/TestAttributes/Directory2',
@@ -48,25 +49,20 @@ class AttributeAccessorTest extends TestCase
     }
 
     /** @test */
-    public function the_accessor_populates_the_map()
+    public function the_collection_is_populated_by_registrar()
     {
-        $this->assertCount(14, $this->attributeAccessor->all());
+        $this->assertCount(9, $this->attributeCollection->all());
     }
 
     /** @test */
-    public function the_accessor_can_return_an_attribute_instance()
+    public function the_collection_can_find_an_attribute()
     {
-        $this->assertInstanceOf(TestClassAttribute::class, $this->attributeAccessor->getInstance(TestClass::class, TestClassAttribute::class));
+        $this->assertInstanceOf(
+            TestClassAttribute::class,
+            $this->attributeCollection->find(AttributeTarget::TYPE_CLASS, TestClass::class, null)->allAttributes()[0]->instance
+        );
     }
 
-    /** @test */
-    public function the_accessor_items_are_correct()
-    {
-        $this->assertArrayHasKey('class', $this->attributeAccessor->get(0));
-        $this->assertArrayHasKey('method', $this->attributeAccessor->get(0));
-        $this->assertArrayHasKey('attribute', $this->attributeAccessor->get(0));
-        $this->assertArrayHasKey('instance', $this->attributeAccessor->get(0));
-    }
 
 
 

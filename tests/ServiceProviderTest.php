@@ -2,8 +2,8 @@
 
 namespace TWithers\LaravelAttributes\Tests;
 
-use TWithers\LaravelAttributes\AttributeAccessor;
-use TWithers\LaravelAttributes\AttributeRegistrar;
+use TWithers\LaravelAttributes\Attribute\AttributeCollection;
+use TWithers\LaravelAttributes\Attribute\AttributeRegistrar;
 use TWithers\LaravelAttributes\AttributesServiceProvider;
 use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestClassAttribute;
 use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestGenericAttribute;
@@ -35,7 +35,7 @@ class ServiceProviderTest extends TestCase
     {
         parent::resolveApplicationConfiguration($app);
 
-        $app['config']->set('attributes.use_cache', [true]);
+        $app['config']->set('attributes.use_cache', [false]);
         $app['config']->set('attributes.directories', [
             'TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1',
             'TWithers\LaravelAttributes\Tests\TestAttributes\Directory2' => __DIR__ . '/TestAttributes/Directory2',
@@ -50,10 +50,9 @@ class ServiceProviderTest extends TestCase
     /** @test */
     public function the_provider_can_register_the_accessor()
     {
-        $this->assertInstanceOf(AttributeAccessor::class, app()->get(AttributeAccessor::class));
-        $this->assertInstanceOf(AttributeAccessor::class, app()->get('attributes'));
-        $this->assertCount(14, app()->get(AttributeAccessor::class)->all());
-
+        $this->assertInstanceOf(AttributeCollection::class, app()->get(AttributeCollection::class));
+        $this->assertInstanceOf(AttributeCollection::class, app()->get('attributes'));
+        $this->assertCount(9, app()->get(AttributeCollection::class)->all());
     }
 
 
