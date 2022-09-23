@@ -2,6 +2,7 @@
 
 namespace TWithers\LaravelAttributes\Attribute;
 
+use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
 use TWithers\LaravelAttributes\Attribute\Entities\AttributeInstance;
 use TWithers\LaravelAttributes\Attribute\Entities\AttributeTarget;
@@ -53,6 +54,8 @@ class AttributeRegistrar
 
     public function register(): void
     {
+        $this->collection = new AttributeCollection();
+
         if (empty($this->attributes)) {
             $this->findAttributes();
         }
@@ -133,15 +136,19 @@ class AttributeRegistrar
     protected function callableForClass(callable $function): void
     {
         foreach ($this->directories as $namespace => $path) {
-            foreach ((new Finder)->in($path)->files()->name('*.php') as $file) {
-                $className = $namespace . "\\";
-                if (strlen($file->getRelativePath())) {
-                    $className .= str_replace("/", "\\", $file->getRelativePath()) . "\\";
+            try {
+                foreach ((new Finder)->in($path)->files()->name('*.php') as $file) {
+                    $className = $namespace . "\\";
+                    if (strlen($file->getRelativePath())) {
+                        $className .= str_replace("/", "\\", $file->getRelativePath()) . "\\";
+                    }
+                    $className .= $file->getFilenameWithoutExtension();
+                    if (class_exists($className)) {
+                        call_user_func($function, $className);
+                    }
                 }
-                $className .= $file->getFilenameWithoutExtension();
-                if (class_exists($className)) {
-                    call_user_func($function, $className);
-                }
+            } catch (DirectoryNotFoundException $e) {
+
             }
         }
     }

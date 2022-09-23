@@ -6,7 +6,7 @@ namespace TWithers\LaravelAttributes\Attribute;
 use TWithers\LaravelAttributes\Attribute\Entities\AttributeInstance;
 use TWithers\LaravelAttributes\Attribute\Entities\AttributeTarget;
 
-class AttributeCollection
+class AttributeCollection implements \Countable
 {
     /**
      * @var AttributeTarget[]
@@ -144,5 +144,10 @@ class AttributeCollection
     public function __unserialize(array $data): void
     {
         $this->data = $data['data'];
+    }
+
+    public function count(): int
+    {
+        return count($this->data);
     }
 }

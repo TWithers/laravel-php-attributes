@@ -16,7 +16,7 @@ class ServiceProviderTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->attributesServiceProvider = app(AttributeRegistrar::class);
+        $this->attributesServiceProvider = new AttributesServiceProvider(app());
     }
 
     protected function getPackageProviders($app): array
