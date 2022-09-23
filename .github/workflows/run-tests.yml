@@ -38,3 +38,14 @@ jobs:
 
       - name: Execute coverage tests
         run: vendor/bin/phpunit --coverage-clover=coverage.xml
+
+      - name: Codecov
+        uses: codecov/codecov-action@v3.1.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          path_to_write_report: ./coverage/codecov_report.txt
+          verbose: true
+
