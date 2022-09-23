@@ -2,6 +2,7 @@
 
 namespace TWithers\LaravelAttributes\Tests;
 
+use Carbon\Laravel\ServiceProvider;
 use TWithers\LaravelAttributes\Attribute\AttributeCollection;
 use TWithers\LaravelAttributes\Attribute\AttributeRegistrar;
 use TWithers\LaravelAttributes\AttributesServiceProvider;
@@ -11,10 +12,12 @@ use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestMethodA
 
 class ServiceProviderTest extends TestCase
 {
+    protected AttributesServiceProvider $attributesServiceProvider;
+
     public function setUp(): void
     {
         parent::setUp();
-        $this->attributeRegistrar = app(AttributeRegistrar::class);
+        $this->attributesServiceProvider = app(AttributeRegistrar::class);
     }
 
     protected function getPackageProviders($app): array
@@ -52,7 +55,7 @@ class ServiceProviderTest extends TestCase
     {
         $this->assertInstanceOf(AttributeCollection::class, app()->get(AttributeCollection::class));
         $this->assertInstanceOf(AttributeCollection::class, app()->get('attributes'));
-        $this->assertCount(9, app()->get(AttributeCollection::class)->all());
+
     }
 
 

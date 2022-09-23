@@ -1,5 +1,12 @@
 # laravel-php-attributes
 
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/twithers/laravel-php-attributes.svg?style=flat-square)](https://packagist.org/packages/twithers/laravel-php-attributes)
+![Tests](https://github.com/TWithers/laravel-php-attributes/workflows/Tests/badge.svg)
+[![Type Coverage](https://shepherd.dev/github/TWithers/laravel-php-attributes/coverage.svg)](https://shepherd.dev/github/TWithers/laravel-php-attributes)
+[![Total Downloads](https://img.shields.io/packagist/dt/twithers/laravel-php-attributes.svg?style=flat-square)](https://packagist.org/packages/twithers/laravel-php-attributes)
+
+
+
 This package will help you create and use your own PHP 8 Attributes inside of a Laravel application without having to worry about writing your own loaders, reflection methods, and data caching.
 
 By default, all attributes in your `app` directory are automatically loaded and cached, with an accessor provided to look up attributes as needed.
@@ -215,6 +222,13 @@ It would be pertinent to use this command in your deployment process to ensure a
 
 ## Contributing
 All contributions are welcome.
+
+### Thank you!
+<a href="https://github.com/twithers/laravel-php-attributes/graphs/contributors">
+<img src="https://contrib.rocks/image?repo=twithers/laravel-php-attributes" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
 
 ## License
 

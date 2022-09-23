@@ -1,13 +1,15 @@
 {
   "name": "twithers/laravel-php-attributes",
-  "description": "Access and cache attributes automatically",
+  "description": "Use PHP 8 Attributes easily inside of your Laravel application",
   "keywords": [
     "php8-attributes",
     "attributes",
     "laravel-php-attributes",
-    "laravel-php8-attributes"
+    "laravel-php8-attributes",
+    "php-attributes",
+    "attribute-caching"
   ],
-  "homepage": "https://github.com/twithers/laravel-php8-attributes",
+  "homepage": "https://github.com/twithers/laravel-php-attributes",
   "license": "MIT",
   "authors": [
     {
