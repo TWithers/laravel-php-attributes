@@ -148,7 +148,6 @@ class AttributeRegistrar
                     }
                 }
             } catch (DirectoryNotFoundException $e) {
-
             }
         }
     }

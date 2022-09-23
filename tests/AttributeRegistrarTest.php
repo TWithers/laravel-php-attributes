@@ -65,6 +65,7 @@ class AttributeRegistrarTest extends TestCase
     public function the_registrar_handles_invalid_paths()
     {
         $exception = null;
+
         try {
             $this->attributeRegistrar
                 ->setAttributes(app('config')->get('attributes.attributes'))
@@ -80,6 +81,7 @@ class AttributeRegistrarTest extends TestCase
     public function the_registrar_handles_invalid_namespaces()
     {
         $exception = null;
+
         try {
             $this->attributeRegistrar
                 ->setAttributes(app('config')->get('attributes.attributes'))

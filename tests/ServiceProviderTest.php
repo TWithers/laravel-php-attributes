@@ -3,7 +3,6 @@
 namespace TWithers\LaravelAttributes\Tests;
 
 use TWithers\LaravelAttributes\Attribute\AttributeCollection;
-use TWithers\LaravelAttributes\Attribute\AttributeRegistrar;
 use TWithers\LaravelAttributes\AttributesServiceProvider;
 use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestClassAttribute;
 use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestGenericAttribute;
