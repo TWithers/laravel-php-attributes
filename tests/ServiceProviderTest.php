@@ -2,7 +2,6 @@
 
 namespace TWithers\LaravelAttributes\Tests;
 
-use Carbon\Laravel\ServiceProvider;
 use TWithers\LaravelAttributes\Attribute\AttributeCollection;
 use TWithers\LaravelAttributes\Attribute\AttributeRegistrar;
 use TWithers\LaravelAttributes\AttributesServiceProvider;
@@ -55,10 +54,5 @@ class ServiceProviderTest extends TestCase
     {
         $this->assertInstanceOf(AttributeCollection::class, app()->get(AttributeCollection::class));
         $this->assertInstanceOf(AttributeCollection::class, app()->get('attributes'));
-
     }
-
-
-
-
 }

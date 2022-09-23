@@ -18,8 +18,8 @@ class AttributeRegistrarTest extends TestCase
             ->setAttributes(app('config')->get('attributes.attributes'))
             ->setDirectories(app('config')->get('attributes.directories'));
         $this->attributeRegistrar->register();
-
     }
+
     /**
      * Resolve application core configuration implementation.
      *
@@ -101,8 +101,4 @@ class AttributeRegistrarTest extends TestCase
 //        $this->assertArrayHasKey(TestGenericAttribute::class, $map[\TWithers\LaravelAttributes\Tests\TestAttributes\Directory2\TestClass::class."::testMethod"]);
 //        $this->assertCount(2, $map[\TWithers\LaravelAttributes\Tests\TestAttributes\Directory2\TestClass::class."::testMethod"][TestGenericAttribute::class]);
 //    }
-
-
-
-
 }

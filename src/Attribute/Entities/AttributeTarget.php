@@ -41,11 +41,10 @@ class AttributeTarget
     {
         if (is_string($attribute) && $instance !== null) {
             $this->attributeMap[] = new AttributeInstance($attribute, $instance);
-        } else if ($instance === null) {
+        } elseif ($instance === null) {
             $this->attributeMap[] = $attribute;
         }
     }
-
 
     /**
      * @param string $name
@@ -62,8 +61,9 @@ class AttributeTarget
      */
     public function findByName(string $name): array
     {
-        return array_filter($this->attributeMap,
-            fn(AttributeInstance $instance) => $instance->name === $name
+        return array_filter(
+            $this->attributeMap,
+            fn (AttributeInstance $instance) => $instance->name === $name
         );
     }
 

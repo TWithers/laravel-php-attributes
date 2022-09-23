@@ -5,7 +5,6 @@ namespace TWithers\LaravelAttributes;
 use Illuminate\Support\Env;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
-use TWithers\LaravelAttributes\Attribute\AttributeAccessor;
 use TWithers\LaravelAttributes\Attribute\AttributeCollection;
 use TWithers\LaravelAttributes\Attribute\AttributeRegistrar;
 use TWithers\LaravelAttributes\Console\AttributesClearCommand;
@@ -20,21 +19,20 @@ class AttributesServiceProvider extends ServiceProvider
             ], 'config');
 
             $this->commands([
-                AttributesClearCommand::class
+                AttributesClearCommand::class,
             ]);
         }
 
         $attributes = $this->getAttributes();
 
-        $this->app->singleton(AttributeCollection::class, fn() => $attributes);
-        $this->app->bind('attributes', fn($app) => $app->get(AttributeCollection::class));
+        $this->app->singleton(AttributeCollection::class, fn () => $attributes);
+        $this->app->bind('attributes', fn ($app) => $app->get(AttributeCollection::class));
     }
 
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/attributes.php', 'attributes');
     }
-
 
     protected function getAttributes(): AttributeCollection
     {
@@ -55,6 +53,7 @@ class AttributesServiceProvider extends ServiceProvider
         $attributeRegistrar = new AttributeRegistrar($this->getAttributeDirectories(), $this->getAttributeClasses());
         $attributeRegistrar->register();
         $this->cacheAttributes($attributeRegistrar->getAttributeCollection());
+
         return $attributeRegistrar->getAttributeCollection();
     }
 
@@ -87,7 +86,8 @@ class AttributesServiceProvider extends ServiceProvider
     protected function cacheAttributes(AttributeCollection $attributeCollection): void
     {
         $this->app['files']->put(
-            $this->getCachedAttributesPath(), '<?php return unserialize('.var_export(serialize($attributeCollection), true).');'.PHP_EOL
+            $this->getCachedAttributesPath(),
+            '<?php return unserialize('.var_export(serialize($attributeCollection), true).');'.PHP_EOL
         );
     }
 }

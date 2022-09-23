@@ -8,7 +8,6 @@ use TWithers\LaravelAttributes\Attribute\Entities\AttributeTarget;
 
 class AttributeCollection
 {
-
     /**
      * @var AttributeTarget[]
      */
@@ -81,13 +80,14 @@ class AttributeCollection
      */
     public function find(int $type, string $className, ?string $identifier = null): ?AttributeTarget
     {
-        foreach($this->data as $target) {
+        foreach ($this->data as $target) {
             if ($target->className === $className
                 && ($type === AttributeTarget::TYPE_CLASS || ($target->type === $type && $target->identifier === $identifier))
             ) {
                 return $target;
             }
         }
+
         return null;
     }
 
@@ -120,7 +120,6 @@ class AttributeCollection
         return $this->find(AttributeTarget::TYPE_METHOD, $className, $propertyName);
     }
 
-
     /**
      * @param string $attributeName
      * @param int|null $type
@@ -130,7 +129,7 @@ class AttributeCollection
     {
         return array_filter(
             $this->data,
-            fn(AttributeTarget $target) => $target->hasAttribute($attributeName)
+            fn (AttributeTarget $target) => $target->hasAttribute($attributeName)
                 && ($type === null || $target->type === $type)
         );
     }
@@ -138,7 +137,7 @@ class AttributeCollection
     public function __serialize(): array
     {
         return [
-            'data' => $this->data
+            'data' => $this->data,
         ];
     }
 

@@ -3,7 +3,6 @@
 namespace TWithers\LaravelAttributes\Attribute;
 
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Mime\Part\Multipart\RelatedPart;
 use TWithers\LaravelAttributes\Attribute\Entities\AttributeInstance;
 use TWithers\LaravelAttributes\Attribute\Entities\AttributeTarget;
 
@@ -35,6 +34,7 @@ class AttributeRegistrar
     public function setDirectories(array $directories): static
     {
         $this->directories = $directories;
+
         return $this;
     }
 
@@ -47,9 +47,9 @@ class AttributeRegistrar
     public function setAttributes(array $attributes): static
     {
         $this->attributes = $attributes;
+
         return $this;
     }
-
 
     public function register(): void
     {
@@ -68,10 +68,10 @@ class AttributeRegistrar
      */
     protected function findAttributes(): array
     {
-        $this->callableForClass(function(string $className) {
+        $this->callableForClass(function (string $className) {
             $reflectionClass = new \ReflectionClass($className);
             $classAttributes = $reflectionClass->getAttributes();
-            if (!empty($classAttributes) && $classAttributes[0]->getName() === 'Attribute') {
+            if (! empty($classAttributes) && $classAttributes[0]->getName() === 'Attribute') {
                 $this->attributes[] = $className;
             }
         });
@@ -87,7 +87,7 @@ class AttributeRegistrar
      */
     protected function registerAttributes(): void
     {
-        $this->callableForClass(function(string $className) {
+        $this->callableForClass(function (string $className) {
             $this->addToCollection(AttributeTarget::TYPE_CLASS, $className, null, AttributeAccessor::forClass($className));
 
             $reflectionClass = new \ReflectionClass($className);
@@ -117,13 +117,12 @@ class AttributeRegistrar
             return;
         }
 
-        foreach($attributeInstances as $attributeInstance) {
+        foreach ($attributeInstances as $attributeInstance) {
             if (in_array($attributeInstance->name, $this->attributes)) {
                 $this->collection->addInstance($type, $className, $identifier, $attributeInstance);
             }
         }
     }
-
 
     /**
      * Iterator function to handle looping through files and determining namespaces
@@ -154,5 +153,4 @@ class AttributeRegistrar
     {
         return $this->collection;
     }
-
 }

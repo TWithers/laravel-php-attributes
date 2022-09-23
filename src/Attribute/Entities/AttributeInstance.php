@@ -23,5 +23,4 @@ class AttributeInstance
             'instance' => $this->instance,
         ];
     }
-
 }

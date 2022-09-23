@@ -2,7 +2,6 @@
 
 namespace TWithers\LaravelAttributes\Tests;
 
-
 use TWithers\LaravelAttributes\Attribute\AttributeCollection;
 use TWithers\LaravelAttributes\Attribute\AttributeRegistrar;
 use TWithers\LaravelAttributes\Attribute\Entities\AttributeTarget;
@@ -23,8 +22,8 @@ class AttributeCollectionTest extends TestCase
             ->setDirectories(app('config')->get('attributes.directories'));
         $attributeRegistrar->register();
         $this->attributeCollection = $attributeRegistrar->getAttributeCollection();
-
     }
+
     /**
      * Resolve application core configuration implementation.
      *
@@ -62,9 +61,4 @@ class AttributeCollectionTest extends TestCase
             $this->attributeCollection->find(AttributeTarget::TYPE_CLASS, TestClass::class, null)->allAttributes()[0]->instance
         );
     }
-
-
-
-
-
 }

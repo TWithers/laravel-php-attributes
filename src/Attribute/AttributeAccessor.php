@@ -7,7 +7,6 @@ use TWithers\LaravelAttributes\Attribute\Entities\AttributeTarget;
 
 class AttributeAccessor
 {
-
     protected int $type;
     protected string $className;
     protected ?string $identifier;
@@ -26,6 +25,7 @@ class AttributeAccessor
     public static function forClass(string $className): ?array
     {
         $accessor = new static(AttributeTarget::TYPE_CLASS, $className, null);
+
         return $accessor->reflectForAttributes();
     }
 
@@ -37,6 +37,7 @@ class AttributeAccessor
     public static function forClassMethod(string $className, string $methodName): ?array
     {
         $accessor = new static(AttributeTarget::TYPE_METHOD, $className, $methodName);
+
         return $accessor->reflectForAttributes();
     }
 
@@ -48,6 +49,7 @@ class AttributeAccessor
     public static function forClassProperty(string $className, string $propertyName): ?array
     {
         $accessor = new static(AttributeTarget::TYPE_PROPERTY, $className, $propertyName);
+
         return $accessor->reflectForAttributes();
     }
 
@@ -56,7 +58,7 @@ class AttributeAccessor
      */
     public function reflectForAttributes(): ?array
     {
-        try{
+        try {
             $reflection = match ($this->type) {
                 AttributeTarget::TYPE_CLASS => new \ReflectionClass($this->className),
                 AttributeTarget::TYPE_METHOD => (new \ReflectionClass($this->className))->getMethod($this->identifier),
@@ -68,7 +70,7 @@ class AttributeAccessor
 
         $attributeInstances = [];
 
-        foreach($reflection->getAttributes() as $attribute) {
+        foreach ($reflection->getAttributes() as $attribute) {
             if (class_exists($attribute->getName())) {
                 $attributeInstances[] = new AttributeInstance($attribute->getName(), $attribute->newInstance());
             }
@@ -76,5 +78,4 @@ class AttributeAccessor
 
         return $attributeInstances;
     }
-
 }
