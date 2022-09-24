@@ -2,6 +2,7 @@
 
 namespace TWithers\LaravelAttributes\Tests;
 
+use TWithers\LaravelAttributes\Attribute\Entities\AttributeInstance;
 use TWithers\LaravelAttributes\Attribute\Entities\AttributeTarget;
 
 class AttributeTargetTest extends TestCase
