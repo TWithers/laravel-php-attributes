@@ -36,7 +36,7 @@ class AttributesServiceProvider extends ServiceProvider
 
     protected function getAttributes(): AttributeCollection
     {
-        if (config('attributes.cache_enabled') && $this->attributesAreCached()) {
+        if (config('attributes.use_cache') && $this->attributesAreCached()) {
             return $this->loadCachedAttributes();
         }
 
@@ -52,7 +52,10 @@ class AttributesServiceProvider extends ServiceProvider
     {
         $attributeRegistrar = new AttributeRegistrar($this->getAttributeDirectories(), $this->getAttributeClasses());
         $attributeRegistrar->register();
-        $this->cacheAttributes($attributeRegistrar->getAttributeCollection());
+
+        if (config('attributes.use_cache')) {
+            $this->cacheAttributes($attributeRegistrar->getAttributeCollection());
+        }
 
         return $attributeRegistrar->getAttributeCollection();
     }
@@ -72,15 +75,15 @@ class AttributesServiceProvider extends ServiceProvider
         return $this->app['files']->exists($this->getCachedAttributesPath());
     }
 
-    protected function getCachedAttributesPath(): string
+    public static function getCachedAttributesPath(): string
     {
         if (is_null($env = Env::get('APP_ATTRIBUTES_CACHE'))) {
-            return $this->app->bootstrapPath('cache/attributes.php');
+            return app()->bootstrapPath('cache/attributes.php');
         }
 
         return Str::startsWith($env, ['/', '\\'])
             ? $env
-            : $this->app->basePath($env);
+            : app()->basePath($env);
     }
 
     protected function cacheAttributes(AttributeCollection $attributeCollection): void

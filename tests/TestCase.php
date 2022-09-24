@@ -6,6 +6,7 @@ use Illuminate\Support\Env;
 use Illuminate\Support\Str;
 use Orchestra\Testbench\TestCase as Orchestra;
 use TWithers\LaravelAttributes\Attribute\AttributeRegistrar;
+use TWithers\LaravelAttributes\AttributesServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -24,12 +25,6 @@ class TestCase extends Orchestra
 
     public function getCachedAttributesPath(): string
     {
-        if (is_null($env = Env::get('APP_ATTRIBUTES_CACHE'))) {
-            return app()->bootstrapPath('cache/attributes.php');
-        }
-
-        return Str::startsWith($env, ['/', '\\'])
-            ? $env
-            : app()->basePath($env);
+        return AttributesServiceProvider::getCachedAttributesPath();
     }
 }

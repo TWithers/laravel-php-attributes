@@ -15,6 +15,9 @@ class ServiceProviderTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+        if (file_exists(AttributesServiceProvider::getCachedAttributesPath())){
+            unlink(AttributesServiceProvider::getCachedAttributesPath());
+        }
         $this->attributesServiceProvider = new AttributesServiceProvider(app());
     }
 
@@ -25,18 +28,9 @@ class ServiceProviderTest extends TestCase
         ];
     }
 
-    /**
-     * Resolve application core configuration implementation.
-     *
-     * @param  \Illuminate\Foundation\Application  $app
-     *
-     * @return void
-     */
-    protected function resolveApplicationConfiguration($app): void
+    protected function usesDefaultConfig($app)
     {
-        parent::resolveApplicationConfiguration($app);
-
-        $app['config']->set('attributes.use_cache', [false]);
+        $app['config']->set('attributes.use_cache', false);
         $app['config']->set('attributes.directories', [
             'TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1',
             'TWithers\LaravelAttributes\Tests\TestAttributes\Directory2' => __DIR__ . '/TestAttributes/Directory2',
@@ -48,10 +42,52 @@ class ServiceProviderTest extends TestCase
         ]);
     }
 
-    /** @test */
+    protected function usesCache($app)
+    {
+        $app['config']->set('attributes.use_cache', true);
+        $app['config']->set('attributes.directories', [
+            'TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1',
+            'TWithers\LaravelAttributes\Tests\TestAttributes\Directory2' => __DIR__ . '/TestAttributes/Directory2',
+        ]);
+        $app['config']->set('attributes.attributes', [
+            TestClassAttribute::class,
+            TestGenericAttribute::class,
+            TestMethodAttribute::class,
+        ]);
+    }
+
+    /**
+     * @test
+     * @define-env usesDefaultConfig
+     */
     public function the_provider_can_register_the_accessor()
     {
         $this->assertInstanceOf(AttributeCollection::class, app()->get(AttributeCollection::class));
         $this->assertInstanceOf(AttributeCollection::class, app()->get('attributes'));
     }
+
+    /**
+     * @test
+     * @define-env usesCache
+     */
+    public function the_provider_uses_cache()
+    {
+        $this->assertFileDoesNotExist(AttributesServiceProvider::getCachedAttributesPath());
+        $this->attributesServiceProvider->boot();
+        $this->assertFileExists(AttributesServiceProvider::getCachedAttributesPath());
+    }
+
+    /**
+     * @test
+     * @define-env usesDefaultConfig
+     */
+    public function the_provider_can_disable_cache()
+    {
+        $this->assertFileDoesNotExist(AttributesServiceProvider::getCachedAttributesPath());
+        $attributesServiceProvider = new AttributesServiceProvider(app());
+        $attributesServiceProvider->boot();
+        $this->assertFileDoesNotExist(AttributesServiceProvider::getCachedAttributesPath());
+    }
+
+
 }
