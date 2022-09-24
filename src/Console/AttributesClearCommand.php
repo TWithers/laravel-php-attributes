@@ -7,6 +7,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Env;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Attribute\AsCommand;
+use TWithers\LaravelAttributes\AttributesServiceProvider;
 
 #[AsCommand(name: 'attributes:clear')]
 class AttributesClearCommand extends Command
@@ -63,19 +64,8 @@ class AttributesClearCommand extends Command
      */
     public function handle()
     {
-        $this->files->delete($this->getCachedAttributesPath());
+        $this->files->delete(AttributesServiceProvider::getCachedAttributesPath());
 
         $this->components->info('Attribute cache cleared successfully.');
-    }
-
-    protected function getCachedAttributesPath(): string
-    {
-        if (is_null($env = Env::get('APP_ATTRIBUTES_CACHE'))) {
-            return $this->laravel->bootstrapPath('cache/attributes.php');
-        }
-
-        return Str::startsWith($env, ['/', '\\'])
-            ? $env
-            : $this->laravel->basePath($env);
     }
 }
