@@ -32,7 +32,7 @@ class AttributeTargetTest extends TestCase
     /** @test */
     public function the_target_returns_attribute_instance_array()
     {
-        $target = new AttributeTarget(AttributeTarget::TYPE_CLASS,'mock', null);
+        $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
         $this->assertIsArray($target->allAttributes());
         $this->assertCount(0, $target->allAttributes());
     }
@@ -51,7 +51,7 @@ class AttributeTargetTest extends TestCase
     /** @test */
     public function the_target_can_add_attribute_instances()
     {
-        $target = new AttributeTarget(AttributeTarget::TYPE_CLASS,'mock', null);
+        $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
         $attribute = new AttributeInstance('mockAttributeInstance', new \stdClass());
         $target->addAttribute($attribute);
 
@@ -63,7 +63,7 @@ class AttributeTargetTest extends TestCase
     /** @test */
     public function the_target_can_detect_if_attribute_exists()
     {
-        $target = new AttributeTarget(AttributeTarget::TYPE_CLASS,'mock', null);
+        $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
         $attribute = new AttributeInstance('mockAttributeInstance', new \stdClass());
 
         $this->assertFalse($target->hasAttribute('mockAttributeInstance'));
@@ -78,7 +78,7 @@ class AttributeTargetTest extends TestCase
     /** @test */
     public function the_target_can_find_attribute()
     {
-        $target = new AttributeTarget(AttributeTarget::TYPE_CLASS,'mock', null);
+        $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
         $attribute = new AttributeInstance('mockAttributeInstance', new \stdClass());
 
         $this->assertIsArray($target->findByName('mockAttributeInstance'));

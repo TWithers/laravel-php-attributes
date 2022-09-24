@@ -4,8 +4,6 @@ namespace TWithers\LaravelAttributes\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Env;
-use Illuminate\Support\Str;
 use Symfony\Component\Console\Attribute\AsCommand;
 use TWithers\LaravelAttributes\AttributesServiceProvider;
 

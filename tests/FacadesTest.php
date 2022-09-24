@@ -2,7 +2,6 @@
 
 namespace TWithers\LaravelAttributes\Tests;
 
-use TWithers\LaravelAttributes\Attribute\AttributeCollection;
 use TWithers\LaravelAttributes\AttributesServiceProvider;
 use TWithers\LaravelAttributes\Facades\Attributes;
 use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestClassAttribute;
@@ -16,7 +15,7 @@ class FacadesTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        if (file_exists(AttributesServiceProvider::getCachedAttributesPath())){
+        if (file_exists(AttributesServiceProvider::getCachedAttributesPath())) {
             unlink(AttributesServiceProvider::getCachedAttributesPath());
         }
         $this->attributesServiceProvider = new AttributesServiceProvider(app());
@@ -71,5 +70,4 @@ class FacadesTest extends TestCase
     {
         $this->assertIsArray(Attributes::all());
     }
-
 }
