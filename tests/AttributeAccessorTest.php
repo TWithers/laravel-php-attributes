@@ -3,18 +3,11 @@
 namespace TWithers\LaravelAttributes\Tests;
 
 use TWithers\LaravelAttributes\Attribute\AttributeAccessor;
-use TWithers\LaravelAttributes\Attribute\AttributeCollection;
-use TWithers\LaravelAttributes\Attribute\AttributeRegistrar;
 use TWithers\LaravelAttributes\Attribute\Entities\AttributeTarget;
-use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestClassAttribute;
-use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestGenericAttribute;
-use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestMethodAttribute;
 use TWithers\LaravelAttributes\Tests\TestAttributes\Directory1\TestClass;
 
 class AttributeAccessorTest extends TestCase
 {
-
-
     /** @test */
     public function the_accessor_returns_null_when_no_class_or_property_exists()
     {

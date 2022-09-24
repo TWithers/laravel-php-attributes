@@ -2,8 +2,6 @@
 
 namespace TWithers\LaravelAttributes\Tests;
 
-use Illuminate\Support\Env;
-use Illuminate\Support\Str;
 use Orchestra\Testbench\TestCase as Orchestra;
 use TWithers\LaravelAttributes\Attribute\AttributeRegistrar;
 use TWithers\LaravelAttributes\AttributesServiceProvider;
