@@ -116,7 +116,7 @@ class AttributeCollectionTest extends TestCase
     public function the_collection_can_be_added_to()
     {
         $originalCount = count($this->attributeCollection);
-        $this->attributeCollection->add(AttributeTarget::TYPE_CLASS,'newMockClass', null, \stdClass::class, new \stdClass());
+        $this->attributeCollection->add(AttributeTarget::TYPE_CLASS, 'newMockClass', null, \stdClass::class, new \stdClass());
         $this->assertCount($originalCount + 1, $this->attributeCollection);
 
         $collection = $this->attributeCollection->all();
@@ -132,7 +132,7 @@ class AttributeCollectionTest extends TestCase
     {
         $originalCount = count($this->attributeCollection);
         $attributeInstance = new AttributeInstance('mockInstance', new \stdClass());
-        $this->attributeCollection->addInstance(AttributeTarget::TYPE_CLASS,'newMockClass', null, $attributeInstance);
+        $this->attributeCollection->addInstance(AttributeTarget::TYPE_CLASS, 'newMockClass', null, $attributeInstance);
         $this->assertCount($originalCount + 1, $this->attributeCollection);
 
         $collection = $this->attributeCollection->all();

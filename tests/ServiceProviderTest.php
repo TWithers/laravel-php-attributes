@@ -15,7 +15,7 @@ class ServiceProviderTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        if (file_exists(AttributesServiceProvider::getCachedAttributesPath())){
+        if (file_exists(AttributesServiceProvider::getCachedAttributesPath())) {
             unlink(AttributesServiceProvider::getCachedAttributesPath());
         }
         $this->attributesServiceProvider = new AttributesServiceProvider(app());
@@ -88,6 +88,4 @@ class ServiceProviderTest extends TestCase
         $attributesServiceProvider->boot();
         $this->assertFileDoesNotExist(AttributesServiceProvider::getCachedAttributesPath());
     }
-
-
 }
