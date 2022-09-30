@@ -51,8 +51,10 @@ class AttributesServiceProvider extends ServiceProvider
         $data = @unserialize($serialized);
         if ($data === false) {
             unlink(self::getCachedAttributesPath());
+
             return null;
         }
+
         return $data;
     }
 
