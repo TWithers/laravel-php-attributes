@@ -48,6 +48,12 @@ class AttributesServiceProvider extends ServiceProvider
     protected function loadCachedAttributes(): ?AttributeCollection
     {
         $serialized = require self::getCachedAttributesPath();
+        if (! is_string($serialized)) {
+            unlink(self::getCachedAttributesPath());
+
+            return null;
+        }
+
         $data = @unserialize($serialized);
         if ($data === false) {
             unlink(self::getCachedAttributesPath());
