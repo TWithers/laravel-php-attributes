@@ -37,15 +37,23 @@ class AttributesServiceProvider extends ServiceProvider
     protected function getAttributes(): AttributeCollection
     {
         if (config('attributes.use_cache') && $this->attributesAreCached()) {
-            return $this->loadCachedAttributes();
+            if ($collection = $this->loadCachedAttributes()) {
+                return $collection;
+            }
         }
 
         return $this->loadAttributes();
     }
 
-    protected function loadCachedAttributes(): AttributeCollection
+    protected function loadCachedAttributes(): ?AttributeCollection
     {
-        return require $this->getCachedAttributesPath();
+        $serialized = require self::getCachedAttributesPath();
+        $data = @unserialize($serialized);
+        if ($data === false) {
+            unlink(self::getCachedAttributesPath());
+            return null;
+        }
+        return $data;
     }
 
     protected function loadAttributes(): AttributeCollection
@@ -72,7 +80,7 @@ class AttributesServiceProvider extends ServiceProvider
 
     protected function attributesAreCached(): bool
     {
-        return $this->app['files']->exists($this->getCachedAttributesPath());
+        return $this->app['files']->exists(self::getCachedAttributesPath());
     }
 
     public static function getCachedAttributesPath(): string
@@ -89,8 +97,8 @@ class AttributesServiceProvider extends ServiceProvider
     protected function cacheAttributes(AttributeCollection $attributeCollection): void
     {
         $this->app['files']->put(
-            $this->getCachedAttributesPath(),
-            '<?php return unserialize('.var_export(serialize($attributeCollection), true).');'.PHP_EOL
+            self::getCachedAttributesPath(),
+            '<?php return '.var_export(serialize($attributeCollection), true).';'.PHP_EOL
         );
     }
 }

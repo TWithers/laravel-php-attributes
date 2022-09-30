@@ -79,6 +79,18 @@ class ServiceProviderTest extends TestCase
 
     /**
      * @test
+     * @define-env usesCache
+     */
+    public function the_provider_handles_invalid_cache()
+    {
+        $contents = "<?php return 'notvalidserialized';";
+        file_put_contents(AttributesServiceProvider::getCachedAttributesPath(), $contents);
+        $this->attributesServiceProvider->boot();
+        $this->assertNotSame($contents, file_get_contents(AttributesServiceProvider::getCachedAttributesPath()));
+    }
+
+    /**
+     * @test
      * @define-env usesDefaultConfig
      */
     public function the_provider_can_disable_cache()
