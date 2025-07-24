@@ -1,28 +1,20 @@
 <?php
 
-namespace TWithers\LaravelAttributes\Tests;
-
 use TWithers\LaravelAttributes\Attribute\Entities\AttributeInstance;
 
-class AttributeInstanceTest extends TestCase
-{
-    /** @test */
-    public function the_instance_constructor_works()
-    {
-        $instance = new AttributeInstance('mock', new \stdClass());
-        $this->assertEquals('mock', $instance->name);
-        $this->assertInstanceOf(\stdClass::class, $instance->instance);
-    }
+test('the instance constructor works', function () {
+    $instance = new AttributeInstance('mock', new \stdClass());
+    expect($instance->name)->toBe('mock');
+    expect($instance->instance)->toBeInstanceOf(\stdClass::class);
+});
 
-    /** @test */
-    public function the_instance_can_be_an_array()
-    {
-        $instance = new AttributeInstance('mock', new \stdClass());
-        $array = $instance->toArray();
+test('the instance can be an array', function () {
+    $instance = new AttributeInstance('mock', new \stdClass());
+    $array = $instance->toArray();
 
-        $this->assertArrayHasKey('name', $array);
-        $this->assertEquals('mock', $array['name']);
-        $this->assertArrayHasKey('instance', $array);
-        $this->assertInstanceOf(\stdClass::class, $array['instance']);
-    }
-}
+    expect($array)
+        ->toHaveKey('name')
+        ->and($array['name'])->toBe('mock')
+        ->and($array)->toHaveKey('instance')
+        ->and($array['instance'])->toBeInstanceOf(\stdClass::class);
+});

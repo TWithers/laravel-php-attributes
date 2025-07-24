@@ -1,8 +1,5 @@
 <?php
 
-namespace TWithers\LaravelAttributes\Tests;
-
-use Exception;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use TWithers\LaravelAttributes\Attribute\AttributeCollection;
 use TWithers\LaravelAttributes\Attribute\AttributeRegistrar;
@@ -12,196 +9,160 @@ use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestMethodA
 use TWithers\LaravelAttributes\Tests\TestAttributes\Directory1\SubDirectory\SubDirectoryClass;
 use TWithers\LaravelAttributes\Tests\TestAttributes\Directory1\TestClass;
 
-class AttributeRegistrarTest extends TestCase
-{
-    protected AttributeRegistrar $attributeRegistrar;
+beforeEach(function () {
+    $this->attributeRegistrar = new AttributeRegistrar();
+    $this->attributeRegistrar->register();
+});
 
-    public function setUp(): void
-    {
-        parent::setUp();
-        $this->attributeRegistrar = new AttributeRegistrar;
+uses()->beforeEach(function () {
+    app('config')->set('attributes.use_cache', false);
+    app('config')->set('attributes.directories', [
+        'TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1',
+        'TWithers\LaravelAttributes\Tests\TestAttributes\Directory2' => __DIR__ . '/TestAttributes/Directory2',
+    ]);
+    app('config')->set('attributes.attributes', [
+        TestClassAttribute::class,
+        TestGenericAttribute::class,
+        TestMethodAttribute::class,
+    ]);
+});
 
-        $this->attributeRegistrar->register();
-    }
+test('the registrar returns an attribute collection', function () {
+    $this->attributeRegistrar
+        ->setAttributes(app('config')->get('attributes.attributes'))
+        ->setDirectories(app('config')->get('attributes.directories'))
+        ->register();
 
-    /**
-     * Resolve application core configuration implementation.
-     *
-     * @param  \Illuminate\Foundation\Application  $app
-     *
-     * @return void
-     */
-    protected function resolveApplicationConfiguration($app): void
-    {
-        parent::resolveApplicationConfiguration($app);
+    $collection = $this->attributeRegistrar->getAttributeCollection();
 
-        $app['config']->set('attributes.use_cache', false);
-        $app['config']->set('attributes.directories', [
-            'TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1',
-            'TWithers\LaravelAttributes\Tests\TestAttributes\Directory2' => __DIR__ . '/TestAttributes/Directory2',
-        ]);
-        $app['config']->set('attributes.attributes', [
-            TestClassAttribute::class,
-            TestGenericAttribute::class,
-            TestMethodAttribute::class,
-        ]);
-    }
+    expect($collection)->toBeInstanceOf(AttributeCollection::class);
+});
 
-    /** @test */
-    public function the_registrar_returns_an_attribute_collection()
-    {
+test('the registrar registers class attributes', function () {
+    $this->attributeRegistrar
+        ->setAttributes(app('config')->get('attributes.attributes'))
+        ->setDirectories(app('config')->get('attributes.directories'))
+        ->register();
+
+    $collection = $this->attributeRegistrar->getAttributeCollection();
+
+    expect($collection)->toBeInstanceOf(\Countable::class);
+    expect($this->attributeRegistrar->getAttributeCollection())->toHaveCount(9);
+});
+
+test('the registrar handles invalid paths', function () {
+    $exception = null;
+
+    try {
         $this->attributeRegistrar
             ->setAttributes(app('config')->get('attributes.attributes'))
-            ->setDirectories(app('config')->get('attributes.directories'))
+            ->setDirectories(['invalid_namespace' => 'invalid_path'])
             ->register();
-
-        $collection = $this->attributeRegistrar->getAttributeCollection();
-
-        $this->assertInstanceOf(AttributeCollection::class, $collection);
+    } catch (Exception $e) {
+        $exception = $e;
     }
+    expect($exception)->not()->toBeInstanceOf(DirectoryNotFoundException::class);
+});
 
-    /** @test */
-    public function the_registrar_registers_class_attributes()
-    {
+test('the registrar handles invalid namespaces', function () {
+    $exception = null;
+
+    try {
         $this->attributeRegistrar
             ->setAttributes(app('config')->get('attributes.attributes'))
-            ->setDirectories(app('config')->get('attributes.directories'))
+            ->setDirectories(['invalid_namespace' => __DIR__ . '/TestAttributes/Directory1'])
             ->register();
-
-        $collection = $this->attributeRegistrar->getAttributeCollection();
-
-        $this->assertInstanceOf(\Countable::class, $collection);
-        $this->assertCount(9, $this->attributeRegistrar->getAttributeCollection());
+    } catch (Exception $e) {
+        $exception = $e;
     }
+    expect($exception)->toBeNull();
+});
 
-    /** @test */
-    public function the_registrar_handles_invalid_paths()
-    {
-        $exception = null;
+test('the registrar limits attribute lookups', function () {
+    $this->attributeRegistrar
+        ->setAttributes([TestClassAttribute::class])
+        ->setDirectories(['TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1'])
+        ->register();
 
-        try {
-            $this->attributeRegistrar
-                ->setAttributes(app('config')->get('attributes.attributes'))
-                ->setDirectories(['invalid_namespace' => 'invalid_path'])
-                ->register();
-        } catch (Exception $e) {
-            $exception = $e;
-        }
-        $this->assertNotInstanceOf(DirectoryNotFoundException::class, $exception);
-    }
+    $collection = $this->attributeRegistrar->getAttributeCollection();
+    $target = $collection->findByClass(TestClass::class);
 
-    /** @test */
-    public function the_registrar_handles_invalid_namespaces()
-    {
-        $exception = null;
+    expect($target->allAttributes())->toHaveCount(1);
+    expect($target->hasAttribute(TestClassAttribute::class))->toBeTrue();
+    expect($target->hasAttribute(TestGenericAttribute::class))->toBeFalse();
 
-        try {
-            $this->attributeRegistrar
-                ->setAttributes(app('config')->get('attributes.attributes'))
-                ->setDirectories(['invalid_namespace' => __DIR__ . '/TestAttributes/Directory1'])
-                ->register();
-        } catch (Exception $e) {
-            $exception = $e;
-        }
-        $this->assertNotInstanceOf(\ReflectionException::class, $exception);
-    }
+    $this->attributeRegistrar
+        ->setAttributes([TestClassAttribute::class, TestGenericAttribute::class])
+        ->setDirectories(['TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1'])
+        ->register();
 
-    /** @test */
-    public function the_registrar_limits_attribute_lookups()
-    {
-        $this->attributeRegistrar
-            ->setAttributes([TestClassAttribute::class])
-            ->setDirectories(['TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1'])
-            ->register();
+    $collection = $this->attributeRegistrar->getAttributeCollection();
+    $target = $collection->findByClass(TestClass::class);
 
-        $collection = $this->attributeRegistrar->getAttributeCollection();
-        $target = $collection->findByClass(TestClass::class);
+    expect($target->allAttributes())->toHaveCount(2);
+    expect($target->hasAttribute(TestClassAttribute::class))->toBeTrue();
+    expect($target->hasAttribute(TestGenericAttribute::class))->toBeTrue();
+});
 
-        $this->assertCount(1, $target->allAttributes());
-        $this->assertTrue($target->hasAttribute(TestClassAttribute::class));
-        $this->assertFalse($target->hasAttribute(TestGenericAttribute::class));
+test('the registrar registers method attributes', function () {
+    $this->attributeRegistrar
+        ->setAttributes([TestGenericAttribute::class])
+        ->setDirectories(['TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1'])
+        ->register();
 
-        $this->attributeRegistrar
-            ->setAttributes([TestClassAttribute::class, TestGenericAttribute::class])
-            ->setDirectories(['TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1'])
-            ->register();
+    $collection = $this->attributeRegistrar->getAttributeCollection();
+    $target = $collection->findByClassMethod(TestClass::class, 'testMethod');
 
-        $collection = $this->attributeRegistrar->getAttributeCollection();
-        $target = $collection->findByClass(TestClass::class);
+    expect($target)->not()->toBeNull();
+    expect($target->hasAttribute(TestGenericAttribute::class))->toBeTrue();
+});
 
-        $this->assertCount(2, $target->allAttributes());
-        $this->assertTrue($target->hasAttribute(TestClassAttribute::class));
-        $this->assertTrue($target->hasAttribute(TestGenericAttribute::class));
-    }
+test('the registrar registers property attributes', function () {
+    $this->attributeRegistrar
+        ->setAttributes([TestGenericAttribute::class])
+        ->setDirectories(['TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1'])
+        ->register();
 
-    /** @test */
-    public function the_registrar_registers_method_attributes()
-    {
-        $this->attributeRegistrar
-            ->setAttributes([TestGenericAttribute::class])
-            ->setDirectories(['TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1'])
-            ->register();
+    $collection = $this->attributeRegistrar->getAttributeCollection();
+    $target = $collection->findByClassProperty(TestClass::class, 'public');
 
-        $collection = $this->attributeRegistrar->getAttributeCollection();
-        $target = $collection->findByClassMethod(TestClass::class, 'testMethod');
+    expect($target)->not()->toBeNull();
+    expect($target->hasAttribute(TestGenericAttribute::class))->toBeTrue();
 
-        $this->assertNotNull($target);
-        $this->assertTrue($target->hasAttribute(TestGenericAttribute::class));
-    }
+    $target = $collection->findByClassProperty(TestClass::class, 'protected');
 
-    /** @test */
-    public function the_registrar_registers_property_attributes()
-    {
-        $this->attributeRegistrar
-            ->setAttributes([TestGenericAttribute::class])
-            ->setDirectories(['TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1'])
-            ->register();
+    expect($target)->not()->toBeNull();
+    expect($target->hasAttribute(TestGenericAttribute::class))->toBeTrue();
 
-        $collection = $this->attributeRegistrar->getAttributeCollection();
-        $target = $collection->findByClassProperty(TestClass::class, 'public');
+    $target = $collection->findByClassProperty(TestClass::class, 'private');
 
-        $this->assertNotNull($target);
-        $this->assertTrue($target->hasAttribute(TestGenericAttribute::class));
+    expect($target)->not()->toBeNull();
+    expect($target->hasAttribute(TestGenericAttribute::class))->toBeTrue();
+});
 
-        $target = $collection->findByClassProperty(TestClass::class, 'protected');
+test('the registrar registers subdirectories', function () {
+    $this->attributeRegistrar
+        ->setAttributes([TestGenericAttribute::class])
+        ->setDirectories(['TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1'])
+        ->register();
 
-        $this->assertNotNull($target);
-        $this->assertTrue($target->hasAttribute(TestGenericAttribute::class));
+    $collection = $this->attributeRegistrar->getAttributeCollection();
+    $target = $collection->findByClass(SubDirectoryClass::class);
 
-        $target = $collection->findByClassProperty(TestClass::class, 'private');
+    expect($target)->not()->toBeNull();
+    expect($target->hasAttribute(TestGenericAttribute::class))->toBeTrue();
+});
 
-        $this->assertNotNull($target);
-        $this->assertTrue($target->hasAttribute(TestGenericAttribute::class));
-    }
+test('the registrar registers repeatable attributes', function () {
+    $this->attributeRegistrar
+        ->setAttributes([TestGenericAttribute::class])
+        ->setDirectories(['TWithers\LaravelAttributes\Tests\TestAttributes\Directory2' => __DIR__ . '/TestAttributes/Directory2'])
+        ->register();
 
-    /** @test */
-    public function the_registrar_registers_subdirectories()
-    {
-        $this->attributeRegistrar
-            ->setAttributes([TestGenericAttribute::class])
-            ->setDirectories(['TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1'])
-            ->register();
+    $collection = $this->attributeRegistrar->getAttributeCollection();
+    $target = $collection->findByClass(\TWithers\LaravelAttributes\Tests\TestAttributes\Directory2\TestClass::class);
 
-        $collection = $this->attributeRegistrar->getAttributeCollection();
-        $target = $collection->findByClass(SubDirectoryClass::class);
-
-        $this->assertNotNull($target);
-        $this->assertTrue($target->hasAttribute(TestGenericAttribute::class));
-    }
-
-    /** @test */
-    public function the_registrar_registers_repeatable_attributes()
-    {
-        $this->attributeRegistrar
-            ->setAttributes([TestGenericAttribute::class])
-            ->setDirectories(['TWithers\LaravelAttributes\Tests\TestAttributes\Directory2' => __DIR__ . '/TestAttributes/Directory2'])
-            ->register();
-
-        $collection = $this->attributeRegistrar->getAttributeCollection();
-        $target = $collection->findByClass(\TWithers\LaravelAttributes\Tests\TestAttributes\Directory2\TestClass::class);
-
-        $this->assertNotNull($target);
-        $this->assertTrue($target->hasAttribute(TestGenericAttribute::class));
-        $this->assertCount(2, $target->allAttributes());
-    }
-}
+    expect($target)->not()->toBeNull();
+    expect($target->hasAttribute(TestGenericAttribute::class))->toBeTrue();
+    expect($target->allAttributes())->toHaveCount(2);
+});

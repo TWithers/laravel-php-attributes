@@ -10,13 +10,13 @@ class TestCase extends Orchestra
 {
     protected AttributeRegistrar $attributeRegistrar;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->attributeRegistrar = (new AttributeRegistrar());
     }
 
-    public function getTestPath(string $directory = null): string
+    public function getTestPath(?string $directory = null): string
     {
         return __DIR__ . ($directory ? DIRECTORY_SEPARATOR . $directory : '');
     }
@@ -24,5 +24,12 @@ class TestCase extends Orchestra
     public function getCachedAttributesPath(): string
     {
         return AttributesServiceProvider::getCachedAttributesPath();
+    }
+
+    protected function getPackageProviders($app): array
+    {
+        return [
+            AttributesServiceProvider::class,
+        ];
     }
 }

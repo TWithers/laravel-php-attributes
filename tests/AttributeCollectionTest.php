@@ -1,7 +1,5 @@
 <?php
 
-namespace TWithers\LaravelAttributes\Tests;
-
 use TWithers\LaravelAttributes\Attribute\AttributeCollection;
 use TWithers\LaravelAttributes\Attribute\AttributeRegistrar;
 use TWithers\LaravelAttributes\Attribute\Entities\AttributeInstance;
@@ -11,135 +9,95 @@ use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestGeneric
 use TWithers\LaravelAttributes\Tests\TestAttributes\AttributeClasses\TestMethodAttribute;
 use TWithers\LaravelAttributes\Tests\TestAttributes\Directory1\TestClass;
 
-class AttributeCollectionTest extends TestCase
-{
-    protected AttributeCollection $attributeCollection;
+beforeEach(function () {
+    $attributeRegistrar = (new AttributeRegistrar())
+        ->setAttributes(app('config')->get('attributes.attributes'))
+        ->setDirectories(app('config')->get('attributes.directories'));
+    $attributeRegistrar->register();
+    $this->attributeCollection = $attributeRegistrar->getAttributeCollection();
+});
 
-    public function setUp(): void
-    {
-        parent::setUp();
-        $attributeRegistrar = (new AttributeRegistrar())
-            ->setAttributes(app('config')->get('attributes.attributes'))
-            ->setDirectories(app('config')->get('attributes.directories'));
-        $attributeRegistrar->register();
-        $this->attributeCollection = $attributeRegistrar->getAttributeCollection();
-    }
+/**
+ * Resolve application core configuration implementation.
+ */
+uses()->beforeEach(function () {
+    app('config')->set('attributes.use_cache', false);
+    app('config')->set('attributes.directories', [
+        'TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1',
+        'TWithers\LaravelAttributes\Tests\TestAttributes\Directory2' => __DIR__ . '/TestAttributes/Directory2',
+    ]);
+    app('config')->set('attributes.attributes', [
+        TestClassAttribute::class,
+        TestGenericAttribute::class,
+        TestMethodAttribute::class,
+    ]);
+});
 
-    /**
-     * Resolve application core configuration implementation.
-     *
-     * @param  \Illuminate\Foundation\Application  $app
-     *
-     * @return void
-     */
-    protected function resolveApplicationConfiguration($app): void
-    {
-        parent::resolveApplicationConfiguration($app);
+test('the collection is countable', function () {
+    expect($this->attributeCollection)->toBeInstanceOf(\Countable::class);
+});
 
-        $app['config']->set('attributes.use_cache', false);
-        $app['config']->set('attributes.directories', [
-            'TWithers\LaravelAttributes\Tests\TestAttributes\Directory1' => __DIR__ . '/TestAttributes/Directory1',
-            'TWithers\LaravelAttributes\Tests\TestAttributes\Directory2' => __DIR__ . '/TestAttributes/Directory2',
-        ]);
-        $app['config']->set('attributes.attributes', [
-            TestClassAttribute::class,
-            TestGenericAttribute::class,
-            TestMethodAttribute::class,
-        ]);
-    }
+test('the collection is populated by registrar', function () {
+    expect($this->attributeCollection->all())->toHaveCount(9);
+});
 
-    /** @test */
-    public function the_collection_is_countable()
-    {
-        $this->assertInstanceOf(\Countable::class, $this->attributeCollection);
-    }
+test('the collection can find an attribute', function () {
+    expect($this->attributeCollection->find(AttributeTarget::TYPE_CLASS, TestClass::class, null)->allAttributes()[0]->instance)
+        ->toBeInstanceOf(TestClassAttribute::class);
+});
 
-    /** @test */
-    public function the_collection_is_populated_by_registrar()
-    {
-        $this->assertCount(9, $this->attributeCollection->all());
-    }
+test('the collection can find an attribute by class', function () {
+    expect($this->attributeCollection->findByClass(TestClass::class)->allAttributes()[0]->instance)
+        ->toBeInstanceOf(TestClassAttribute::class);
+});
 
-    /** @test */
-    public function the_collection_can_find_an_attribute()
-    {
-        $this->assertInstanceOf(
-            TestClassAttribute::class,
-            $this->attributeCollection->find(AttributeTarget::TYPE_CLASS, TestClass::class, null)->allAttributes()[0]->instance
-        );
-    }
+test('the collection can find an attribute by method', function () {
+    expect($this->attributeCollection->findByClassMethod(TestClass::class, 'testMethod')->allAttributes()[0]->instance)
+        ->toBeInstanceOf(TestMethodAttribute::class);
+});
 
-    /** @test */
-    public function the_collection_can_find_an_attribute_by_class()
-    {
-        $this->assertInstanceOf(
-            TestClassAttribute::class,
-            $this->attributeCollection->findByClass(TestClass::class)->allAttributes()[0]->instance
-        );
-    }
+test('the collection can find an attribute by property', function () {
+    expect($this->attributeCollection->findByClassProperty(TestClass::class, 'public')->allAttributes()[0]->instance)
+        ->toBeInstanceOf(TestGenericAttribute::class);
+});
 
-    /** @test */
-    public function the_collection_can_find_an_attribute_by_method()
-    {
-        $this->assertInstanceOf(
-            TestMethodAttribute::class,
-            $this->attributeCollection->findByClassMethod(TestClass::class, 'testMethod')->allAttributes()[0]->instance
-        );
-    }
+test('the collection handles serialization', function () {
+    $serialized = serialize($this->attributeCollection);
+    expect($serialized)->toBeString();
 
-    /** @test */
-    public function the_collection_can_find_an_attribute_by_property()
-    {
-        $this->assertInstanceOf(
-            TestGenericAttribute::class,
-            $this->attributeCollection->findByClassProperty(TestClass::class, 'public')->allAttributes()[0]->instance
-        );
-    }
+    $newAttributeCollection = unserialize($serialized);
 
-    /** @test */
-    public function the_collection_handles_serialization()
-    {
-        $serialized = serialize($this->attributeCollection);
-        $this->assertIsString($serialized);
+    expect($newAttributeCollection)
+        ->toBeInstanceOf(AttributeCollection::class)
+        ->toEqual($this->attributeCollection);
+    expect($newAttributeCollection)->toHaveCount(count($this->attributeCollection));
+});
 
-        $newAttributeCollection = unserialize($serialized);
+test('the collection can be added to', function () {
+    $originalCount = count($this->attributeCollection);
+    $this->attributeCollection->add(AttributeTarget::TYPE_CLASS, 'newMockClass', null, \stdClass::class, new \stdClass());
+    expect($this->attributeCollection)->toHaveCount($originalCount + 1);
 
-        $this->assertInstanceOf(
-            AttributeCollection::class,
-            $newAttributeCollection
-        );
-        $this->assertEquals($this->attributeCollection, $newAttributeCollection);
-        $this->assertCount(count($this->attributeCollection), $newAttributeCollection);
-    }
+    $collection = $this->attributeCollection->all();
+    $target = end($collection);
 
-    /** @test */
-    public function the_collection_can_be_added_to()
-    {
-        $originalCount = count($this->attributeCollection);
-        $this->attributeCollection->add(AttributeTarget::TYPE_CLASS, 'newMockClass', null, \stdClass::class, new \stdClass());
-        $this->assertCount($originalCount + 1, $this->attributeCollection);
+    expect($target)
+        ->toBeInstanceOf(AttributeTarget::class)
+        ->and($target->hasAttribute(\stdClass::class))->toBeTrue()
+        ->and($target->findByName(\stdClass::class)[0]->instance)->toBeInstanceOf(\stdClass::class);
+});
 
-        $collection = $this->attributeCollection->all();
-        $target = end($collection);
+test('the collection can be added to with attribute instances', function () {
+    $originalCount = count($this->attributeCollection);
+    $attributeInstance = new AttributeInstance('mockInstance', new \stdClass());
+    $this->attributeCollection->addInstance(AttributeTarget::TYPE_CLASS, 'newMockClass', null, $attributeInstance);
+    expect($this->attributeCollection)->toHaveCount($originalCount + 1);
 
-        $this->assertInstanceOf(AttributeTarget::class, $target);
-        $this->assertTrue($target->hasAttribute(\stdClass::class));
-        $this->assertInstanceOf(\stdClass::class, $target->findByName(\stdClass::class)[0]->instance);
-    }
+    $collection = $this->attributeCollection->all();
+    $target = end($collection);
 
-    /** @test */
-    public function the_collection_can_be_added_to_with_attribute_instances()
-    {
-        $originalCount = count($this->attributeCollection);
-        $attributeInstance = new AttributeInstance('mockInstance', new \stdClass());
-        $this->attributeCollection->addInstance(AttributeTarget::TYPE_CLASS, 'newMockClass', null, $attributeInstance);
-        $this->assertCount($originalCount + 1, $this->attributeCollection);
-
-        $collection = $this->attributeCollection->all();
-        $target = end($collection);
-
-        $this->assertInstanceOf(AttributeTarget::class, $target);
-        $this->assertTrue($target->hasAttribute('mockInstance'));
-        $this->assertInstanceOf(\stdClass::class, $target->findByName('mockInstance')[0]->instance);
-    }
-}
+    expect($target)
+        ->toBeInstanceOf(AttributeTarget::class)
+        ->and($target->hasAttribute('mockInstance'))->toBeTrue()
+        ->and($target->findByName('mockInstance')[0]->instance)->toBeInstanceOf(\stdClass::class);
+});

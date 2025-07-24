@@ -1,100 +1,89 @@
 <?php
 
-namespace TWithers\LaravelAttributes\Tests;
-
 use TWithers\LaravelAttributes\Attribute\Entities\AttributeInstance;
 use TWithers\LaravelAttributes\Attribute\Entities\AttributeTarget;
 
-class AttributeTargetTest extends TestCase
-{
-    /** @test */
-    public function the_target_constructor_works()
-    {
-        $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
-        $this->assertEquals(AttributeTarget::TYPE_CLASS, $target->type);
-        $this->assertEquals('mock', $target->className);
-        $this->assertNull($target->identifier);
-    }
+test('the target constructor works', function () {
+    $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
+    expect($target->type)->toBe(AttributeTarget::TYPE_CLASS);
+    expect($target->className)->toBe('mock');
+    expect($target->identifier)->toBeNull();
+});
 
-    /** @test */
-    public function the_target_can_be_an_array()
-    {
-        $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
-        $array = $target->toArray();
+test('the target can be an array', function () {
+    $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
+    $array = $target->toArray();
 
-        $this->assertArrayHasKey('type', $array);
-        $this->assertEquals(AttributeTarget::TYPE_CLASS, $array['type']);
-        $this->assertArrayHasKey('className', $array);
-        $this->assertEquals('mock', $array['className']);
-        $this->assertArrayHasKey('identifier', $array);
-        $this->assertNull($array['identifier']);
-    }
+    expect($array)
+        ->toHaveKey('type')
+        ->and($array['type'])->toBe(AttributeTarget::TYPE_CLASS)
+        ->and($array)->toHaveKey('className')
+        ->and($array['className'])->toBe('mock')
+        ->and($array)->toHaveKey('identifier')
+        ->and($array['identifier'])->toBeNull();
+});
 
-    /** @test */
-    public function the_target_returns_attribute_instance_array()
-    {
-        $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
-        $this->assertIsArray($target->allAttributes());
-        $this->assertCount(0, $target->allAttributes());
-    }
+test('the target returns attribute instance array', function () {
+    $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
+    expect($target->allAttributes())
+        ->toBeArray()
+        ->toHaveCount(0);
+});
 
-    /** @test */
-    public function the_target_can_add_attributes()
-    {
-        $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
-        $target->addAttribute('mockAttributeInstance', new \stdClass());
+test('the target can add attributes', function () {
+    $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
+    $target->addAttribute('mockAttributeInstance', new \stdClass());
 
-        $this->assertIsArray($target->allAttributes());
-        $this->assertCount(1, $target->allAttributes());
-        $this->assertInstanceOf(\stdClass::class, $target->allAttributes()[0]->instance);
-    }
+    expect($target->allAttributes())
+        ->toBeArray()
+        ->toHaveCount(1)
+        ->and($target->allAttributes()[0]->instance)->toBeInstanceOf(\stdClass::class);
+});
 
-    /** @test */
-    public function the_target_can_add_attribute_instances()
-    {
-        $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
-        $attribute = new AttributeInstance('mockAttributeInstance', new \stdClass());
-        $target->addAttribute($attribute);
+test('the target can add attribute instances', function () {
+    $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
+    $attribute = new AttributeInstance('mockAttributeInstance', new \stdClass());
+    $target->addAttribute($attribute);
 
-        $this->assertIsArray($target->allAttributes());
-        $this->assertCount(1, $target->allAttributes());
-        $this->assertInstanceOf(\stdClass::class, $target->allAttributes()[0]->instance);
-    }
+    expect($target->allAttributes())
+        ->toBeArray()
+        ->toHaveCount(1)
+        ->and($target->allAttributes()[0]->instance)->toBeInstanceOf(\stdClass::class);
+});
 
-    /** @test */
-    public function the_target_can_detect_if_attribute_exists()
-    {
-        $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
-        $attribute = new AttributeInstance('mockAttributeInstance', new \stdClass());
+test('the target can detect if attribute exists', function () {
+    $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
+    $attribute = new AttributeInstance('mockAttributeInstance', new \stdClass());
 
-        $this->assertFalse($target->hasAttribute('mockAttributeInstance'));
-        $this->assertFalse($target->hasAttribute('invalidMockAttributeInstance'));
+    expect($target->hasAttribute('mockAttributeInstance'))->toBeFalse();
+    expect($target->hasAttribute('invalidMockAttributeInstance'))->toBeFalse();
 
-        $target->addAttribute($attribute);
+    $target->addAttribute($attribute);
 
-        $this->assertTrue($target->hasAttribute('mockAttributeInstance'));
-        $this->assertFalse($target->hasAttribute('invalidMockAttributeInstance'));
-    }
+    expect($target->hasAttribute('mockAttributeInstance'))->toBeTrue();
+    expect($target->hasAttribute('invalidMockAttributeInstance'))->toBeFalse();
+});
 
-    /** @test */
-    public function the_target_can_find_attribute()
-    {
-        $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
-        $attribute = new AttributeInstance('mockAttributeInstance', new \stdClass());
+test('the target can find attribute', function () {
+    $target = new AttributeTarget(AttributeTarget::TYPE_CLASS, 'mock', null);
+    $attribute = new AttributeInstance('mockAttributeInstance', new \stdClass());
 
-        $this->assertIsArray($target->findByName('mockAttributeInstance'));
-        $this->assertEmpty($target->findByName('mockAttributeInstance'));
-        $this->assertIsArray($target->findByName('invalidMockAttributeInstance'));
-        $this->assertEmpty($target->findByName('invalidMockAttributeInstance'));
+    expect($target->findByName('mockAttributeInstance'))
+        ->toBeArray()
+        ->toBeEmpty();
+    expect($target->findByName('invalidMockAttributeInstance'))
+        ->toBeArray()
+        ->toBeEmpty();
 
-        $target->addAttribute($attribute);
+    $target->addAttribute($attribute);
 
-        $this->assertIsArray($target->findByName('mockAttributeInstance'));
-        $this->assertNotEmpty($target->findByName('mockAttributeInstance'));
-        $this->assertInstanceOf(AttributeInstance::class, $target->findByName('mockAttributeInstance')[0]);
-        $this->assertSame($attribute, $target->findByName('mockAttributeInstance')[0]);
+    expect($target->findByName('mockAttributeInstance'))
+        ->toBeArray()
+        ->not()->toBeEmpty()
+        ->and($target->findByName('mockAttributeInstance')[0])->toBeInstanceOf(AttributeInstance::class)
+        ->and($target->findByName('mockAttributeInstance')[0])->toBe($attribute);
 
-        $this->assertIsArray($target->findByName('invalidMockAttributeInstance'));
-        $this->assertEmpty($target->findByName('invalidMockAttributeInstance'));
-    }
-}
+    expect($target->findByName('invalidMockAttributeInstance'))
+        ->toBeArray()
+        ->toBeEmpty();
+});

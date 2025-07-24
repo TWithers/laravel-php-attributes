@@ -1,42 +1,36 @@
 <?php
 
-namespace TWithers\LaravelAttributes\Tests;
-
 use TWithers\LaravelAttributes\Attribute\AttributeAccessor;
 use TWithers\LaravelAttributes\Attribute\Entities\AttributeTarget;
 use TWithers\LaravelAttributes\Tests\TestAttributes\Directory1\TestClass;
 
-class AttributeAccessorTest extends TestCase
-{
-    /** @test */
-    public function the_accessor_returns_null_when_no_class_or_property_exists()
-    {
-        $accessor = new AttributeAccessor(AttributeTarget::TYPE_CLASS, 'classDoesntExist', null);
-        $this->assertNull($accessor->reflectForAttributes());
+test('the accessor returns null when no class or property exists', function () {
+    $accessor = new AttributeAccessor(AttributeTarget::TYPE_CLASS, 'classDoesntExist', null);
+    expect($accessor->reflectForAttributes())->toBeNull();
 
-        $accessor = new AttributeAccessor(AttributeTarget::TYPE_METHOD, TestClass::class, 'methodDoesntExist');
-        $this->assertNull($accessor->reflectForAttributes());
+    $accessor = new AttributeAccessor(AttributeTarget::TYPE_METHOD, TestClass::class, 'methodDoesntExist');
+    expect($accessor->reflectForAttributes())->toBeNull();
 
-        $accessor = new AttributeAccessor(AttributeTarget::TYPE_PROPERTY, TestClass::class, 'propertyDoesntExist');
-        $this->assertNull($accessor->reflectForAttributes());
-    }
+    $accessor = new AttributeAccessor(AttributeTarget::TYPE_PROPERTY, TestClass::class, 'propertyDoesntExist');
+    expect($accessor->reflectForAttributes())->toBeNull();
+});
 
-    /** @test */
-    public function the_accessor_returns_attributes_when_they_exist()
-    {
-        $accessor = new AttributeAccessor(AttributeTarget::TYPE_CLASS, TestClass::class, null);
-        $this->assertNotNull($accessor->reflectForAttributes());
-        $this->assertIsArray($accessor->reflectForAttributes());
-        $this->assertCount(2, $accessor->reflectForAttributes());
+test('the accessor returns attributes when they exist', function () {
+    $accessor = new AttributeAccessor(AttributeTarget::TYPE_CLASS, TestClass::class, null);
+    expect($accessor->reflectForAttributes())
+        ->not()->toBeNull()
+        ->toBeArray()
+        ->toHaveCount(2);
 
-        $accessor = new AttributeAccessor(AttributeTarget::TYPE_METHOD, TestClass::class, 'testMethod');
-        $this->assertNotNull($accessor->reflectForAttributes());
-        $this->assertIsArray($accessor->reflectForAttributes());
-        $this->assertCount(2, $accessor->reflectForAttributes());
+    $accessor = new AttributeAccessor(AttributeTarget::TYPE_METHOD, TestClass::class, 'testMethod');
+    expect($accessor->reflectForAttributes())
+        ->not()->toBeNull()
+        ->toBeArray()
+        ->toHaveCount(2);
 
-        $accessor = new AttributeAccessor(AttributeTarget::TYPE_PROPERTY, TestClass::class, 'public');
-        $this->assertNotNull($accessor->reflectForAttributes());
-        $this->assertIsArray($accessor->reflectForAttributes());
-        $this->assertCount(1, $accessor->reflectForAttributes());
-    }
-}
+    $accessor = new AttributeAccessor(AttributeTarget::TYPE_PROPERTY, TestClass::class, 'public');
+    expect($accessor->reflectForAttributes())
+        ->not()->toBeNull()
+        ->toBeArray()
+        ->toHaveCount(1);
+});
